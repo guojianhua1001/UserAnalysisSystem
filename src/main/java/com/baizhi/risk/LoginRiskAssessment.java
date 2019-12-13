@@ -53,33 +53,31 @@ public class LoginRiskAssessment {
         //获取位置坐标并转换为正确的格式
         double ALon = currentPoint[0]; //A位置的经度，单位：°
         double ALat = currentPoint[1]; //A位置的纬度，单位：°
-        double BLon = currentPoint[0]; //A位置的经度，单位：°
-        double BLat = currentPoint[1]; //A位置的纬度，单位：°
+        double BLon = lastPoint[0]; //A位置的经度，单位：°
+        double BLat = lastPoint[1]; //A位置的纬度，单位：°
         double ALonRad = toRadians(ALon); //A位置的经度(弧度)
         double ALatRad = toRadians(ALat); //A位置的纬度(弧度)
         double BLonRad = toRadians(BLon); //B位置的经度(弧度)
         double BLatRad = toRadians(BLat); //B位置的纬度(弧度)
-
         //将地球抽象成一个球形，半径约为6371Km,根据   弧长 = 半径 * 弧度
         //弧度 = arccos[cosβ1cosβ2cos(α1-α2) + sinβ1sinβ2] (α为经度， β为纬度)
+        //实体类全部封装为
         double rad = acos(cos(ALatRad) * cos(BLatRad) * cos(ALonRad - BLonRad) + sin(ALatRad) * sin(BLatRad));
         double R = 6371; //地球半径，单位：km
         //求出位移
         double radian = rad * R;
 
         //求出时间
-        double time = (currentTime - lastTime) / 1000 / 3600; //单位：h
+        double time = (currentTime - lastTime) / 1000.0 / 3600; //单位：h
 
         //求出速度
-        double speed = radian / time;
-
+        double speed = radian / time; //单位：km/h
         //判定
-        if (speed > 800) {
+        if (speed > 600) {
             return true;
         }
         return false;
     }
-
 
     /**
      * 更换设备存在风险（☆）
@@ -132,9 +130,9 @@ public class LoginRiskAssessment {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(currentTime);
         //提取dayOfWeek
-        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
         //星期取值集合
-        String[] WEEKS = {"星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"};
+        String[] WEEKS = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
         //提取hourOfDay
         //修正日期格式
         DecimalFormat decimalFormat = new DecimalFormat("00");
@@ -161,13 +159,13 @@ public class LoginRiskAssessment {
         if (historyCounts < threshold)
             return false;
         //若用户在该天无登录记录，则返回true
-        if (!historicalHabits.containsKey(dayOfWeek))
+        if (!historicalHabits.containsKey(WEEKS[dayOfWeek]))
             return true;
 
         /*
             获取当天的登录记录，并进行分析
          */
-        Map<String, Integer> dayHabits = historicalHabits.get(dayOfWeek);
+        Map<String, Integer> dayHabits = historicalHabits.get(WEEKS[dayOfWeek]);
         //若历史记录该天该时段无登录记录，则返回true
         if (!dayHabits.containsKey(hourOfDay))
             return true;
@@ -193,7 +191,6 @@ public class LoginRiskAssessment {
         return true;
 
     }
-
 
     /**
      * 登陆次数累积超过n次/每天（☆）
@@ -241,27 +238,27 @@ public class LoginRiskAssessment {
         }
         //将单词统计的结果存入数组
         for (Map.Entry<Character, Integer> entry : currentPassCount.entrySet()) {
-            currentPassVector[entry.getKey()] = entry.getValue();
+            currentPassVector[Integer.parseInt(entry.getKey().toString())] = entry.getValue();
         }
 
         /*
-            将historyPasswords进行字符维度统计,并和当前的密码进行比较，若维度大于0.95，则认为无异常
+            将historyPasswords进行字符维度统计,并和当前的密码进行比较，若维度大于阈值，则认为无异常
          */
         HashMap<Character, Integer> historyPassCount = new HashMap<>();
         for (String historyPassword : historyPasswords) {
             //密码字符统计
             char[] historyPassCharArr = historyPassword.toCharArray();
             for (char c : historyPassCharArr) {
-                if (currentPassCount.containsKey(c)) {
-                    currentPassCount.put(c, currentPassCount.get(c) + 1);
+                if (historyPassCount.containsKey(c)) {
+                    historyPassCount.put(c, historyPassCount.get(c) + 1);
                 } else {
-                    currentPassCount.put(c, 1);
+                    historyPassCount.put(c, 1);
                 }
             }
             //构造维度
             int[] historyPassVector = new int[10];
             for (Map.Entry<Character, Integer> entry : historyPassCount.entrySet()) {
-                historyPassVector[entry.getKey()] = entry.getValue();
+                historyPassVector[Integer.parseInt(entry.getKey().toString())] = entry.getValue();
             }
             /*
                 利用余弦相似度比较密码成分。
@@ -285,7 +282,7 @@ public class LoginRiskAssessment {
             double similar = molecule / denominator;
 
             //判定
-            if (similar > 0.95) return false;
+            if (similar > 0.75) return false;
 
             historyPassCount.clear();
         }
@@ -304,52 +301,8 @@ public class LoginRiskAssessment {
      * @return 风险返回true, 无风险返回false
      */
     public boolean InputFeatureEval(Double[] currentVector, List<Double[]> historyVectors) {
-
-        //用户第一次登录
-        if (historyVectors == null) {
-            return false;
-        }
-        //如果如果用户登录次数少于10次，则返回false
-        if (historyVectors.size() < 10) {
-            return false;
-        } else {
-            //计算出输入特征的“球”的方程 (x-a)2 + (y-b)2 + (z-c)2 = r2
-            double sumA = 0;
-            double sumB = 0;
-            double sumC = 0;
-            double maxA = 0;
-            double maxB = 0;
-            double maxC = 0;
-            for (Double[] historyVector : historyVectors) {
-                sumA += historyVector[0];
-                sumB += historyVector[1];
-                sumC += historyVector[2];
-                maxA = max(maxA, historyVector[0]);
-                maxB = max(maxB, historyVector[1]);
-                maxC = max(maxC, historyVector[2]);
-            }
-            double A = sumA / historyVectors.size();
-            double B = sumB / historyVectors.size();
-            double C = sumC / historyVectors.size();
-            double dA = (maxA - A) / A;
-            double dB = (maxB - B) / B;
-            double dC = (maxC - C) / C;
-            double R;
-            //确定半径并折算到A的上
-            if (dA > dB) {
-                if (dA > dC) R = (maxA - A);
-                else R = (maxC - C) * A / C;
-            } else {
-                if (dB > dC) R = (maxB - B) * A / B;
-                else R = (maxC - C) * A / C;
-            }
-            //根据比例调整“球”的形状(折算到A上)
-            double threshold = (currentVector[0] - A) * (currentVector[0] - A) + (currentVector[1] - B) * (currentVector[1] - B) * A * A / B / B + (currentVector[2] - C) * (currentVector[2] - C) * A * A / C / C - R * R;
-            if (threshold < 0) return true;
-            return false;
-        }
+        return true;
     }
-
 
     /**
      * 求最大值
