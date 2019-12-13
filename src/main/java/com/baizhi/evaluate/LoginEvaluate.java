@@ -1,4 +1,4 @@
-package com.baizhi.risk;
+package com.baizhi.evaluate;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -10,7 +10,7 @@ import static java.lang.Math.*;
  * 登录风险评估
  * 辅助业务系统完成盗号或者账号被窃等风险检测。
  */
-public class LoginRiskAssessment {
+public class LoginEvaluate {
 
     /**
      * 异地登录评估 （☆）
@@ -48,7 +48,7 @@ public class LoginRiskAssessment {
      * @param lastPoint    上一次登录坐标
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean speedOfDisplacementEval(Long currentTime, Double[] currentPoint, Long lastTime, Double[] lastPoint) {
+    public boolean speedOfDisplacementEval(Long currentTime, double[] currentPoint, Long lastTime, double[] lastPoint) {
 
         //获取位置坐标并转换为正确的格式
         double ALon = currentPoint[0]; //A位置的经度，单位：°
@@ -215,57 +215,80 @@ public class LoginRiskAssessment {
      * 评估数据：乱序明文密码
      * 历史数据：历史明文密码乱序集合Set<String>
      *
-     * @param currentPassword  当前密码
-     * @param historyPasswords 历史密码集合
+     * @param currentPassword     当前密码
+     * @param historyPasswords    历史密码集合
+     * @param similarityThreshold 相似度阈值
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean wrongPasswordEval(String currentPassword, Set<String> historyPasswords) {
-        //提取密码的特征
-        //维度：[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        int[] currentPassVector = new int[10];
+    public boolean wrongPasswordEval(String currentPassword, Set<String> historyPasswords, double similarityThreshold) {
 
         /*
-            将currentPassword进行字符维度统计
+            获取词袋 --> 确定维度
          */
-        char[] currentPassCharArr = currentPassword.toCharArray();
-        HashMap<Character, Integer> currentPassCount = new HashMap<>();
-        for (char c : currentPassCharArr) {
-            if (currentPassCount.containsKey(c)) {
-                currentPassCount.put(c, currentPassCount.get(c) + 1);
-            } else {
-                currentPassCount.put(c, 1);
-            }
-        }
-        //将单词统计的结果存入数组
-        for (Map.Entry<Character, Integer> entry : currentPassCount.entrySet()) {
-            currentPassVector[Integer.parseInt(entry.getKey().toString())] = entry.getValue();
-        }
-
-        /*
-            将historyPasswords进行字符维度统计,并和当前的密码进行比较，若维度大于阈值，则认为无异常
-         */
-        HashMap<Character, Integer> historyPassCount = new HashMap<>();
+        HashSet<Character> wordsBag = new HashSet<>();
         for (String historyPassword : historyPasswords) {
-            //密码字符统计
-            char[] historyPassCharArr = historyPassword.toCharArray();
-            for (char c : historyPassCharArr) {
-                if (historyPassCount.containsKey(c)) {
-                    historyPassCount.put(c, historyPassCount.get(c) + 1);
-                } else {
-                    historyPassCount.put(c, 1);
+            char[] charArray = historyPassword.toCharArray();
+            for (char c : charArray) {
+                wordsBag.add(c);
+            }
+        }
+        char[] currentPassCharArray = currentPassword.toCharArray();
+        for (char c : currentPassCharArray) {
+            wordsBag.add(c);
+        }
+        //将词袋以线性表的方式保存
+        List<Character> seqWordsBag = new ArrayList<>(wordsBag);
+
+        /*
+            获取currentPassword的特征向量
+         */
+        //进行currentPassword的单词统计
+        HashMap<Character, Integer> currentPassCountMap = new HashMap<>();
+        for (char c : currentPassCharArray) {
+            if (currentPassCountMap.containsKey(c)) {
+                currentPassCountMap.put(c, currentPassCountMap.get(c) + 1);
+            }
+            currentPassCountMap.put(c, 1);
+        }
+        //遍历词袋，为currentPassword的特征向量赋值
+        int[] currentPassVector = new int[seqWordsBag.size()];
+        for (int i = 0; i < seqWordsBag.size(); i++) {
+            int count = 0;
+            if (currentPassCountMap.containsKey(seqWordsBag.get(i))) {
+                count = currentPassCountMap.get(seqWordsBag.get(i));
+            }
+            currentPassVector[i] = count;
+        }
+
+        /*
+            遍历历史密码集，生成每个密码的特征向量，并与当前密码的特征向量进行比较，相似度低于阈值则有风险
+         */
+        for (String historyPassword : historyPasswords) {
+            //为每一个特征向量赋值
+            char[] historyCharArray = historyPassword.toCharArray();
+            HashMap<Character, Integer> historyPassCountMap = new HashMap<>();
+            for (char c : historyCharArray) {
+                if (historyPassCountMap.containsKey(c)) {
+                    historyPassCountMap.put(c, historyPassCountMap.get(c) + 1);
                 }
+                historyPassCountMap.put(c, 1);
             }
-            //构造维度
-            int[] historyPassVector = new int[10];
-            for (Map.Entry<Character, Integer> entry : historyPassCount.entrySet()) {
-                historyPassVector[Integer.parseInt(entry.getKey().toString())] = entry.getValue();
+            //遍历词袋，为currentPassword的特征向量赋值
+            int[] historyPassVector = new int[seqWordsBag.size()];
+            for (int i = 0; i < seqWordsBag.size(); i++) {
+                int count = 0;
+                if (historyPassCountMap.containsKey(seqWordsBag.get(i))) {
+                    count = historyPassCountMap.get(seqWordsBag.get(i));
+                }
+                historyPassVector[i] = count;
             }
+
             /*
-                利用余弦相似度比较密码成分。
+                进行余弦相似度进行密码的比较
              */
             //分子计算
             double molecule = 0;  //向量的数量积
-            for (int i = 0; i < historyPassVector.length; i++) {
+            for (int i = 0; i < seqWordsBag.size(); i++) {
                 molecule += historyPassVector[i] * currentPassVector[i];
             }
             //分母计算
@@ -279,15 +302,13 @@ public class LoginRiskAssessment {
                 cMode2 += i * i;
             }
             denominator = sqrt(hMode2) * sqrt(cMode2);
-            double similar = molecule / denominator;
-
-            //判定
-            if (similar > 0.75) return false;
-
-            historyPassCount.clear();
+            double similarity = molecule / denominator;
+            System.out.println(similarity);
+            //根据相似度进行判定，有相似的密码就返回false
+            if (similarity >= similarityThreshold)
+                return false;
         }
-
-        //若历史密码无匹配，就判定有风险。
+        //若历史密码中没有相似的密码，则判定有风险
         return true;
     }
 
@@ -300,8 +321,53 @@ public class LoginRiskAssessment {
      * @param historyVectors 历史特征集合
      * @return 风险返回true, 无风险返回false
      */
-    public boolean InputFeatureEval(Double[] currentVector, List<Double[]> historyVectors) {
-        return true;
+    public boolean inputFeatureEval(double[] currentVector, List<double[]> historyVectors) {
+
+        //如果用户的登录次数少于2次，则无法进行判定，直接返回false
+        if (historyVectors.size() < 2) {
+            return false;
+        }
+
+        /*
+            求历史输入特征的平均值作为平均输入特征
+         */
+        double[] averageVector = new double[currentVector.length];
+        //求和
+        for (double[] historyVector : historyVectors) {
+            for (int i = 0; i < averageVector.length; i++) {
+                averageVector[i] += historyVector[i];
+            }
+        }
+        //求平均值
+        for (int i = 0; i < averageVector.length; i++) {
+            averageVector[i] = averageVector[i] / historyVectors.size();
+        }
+        
+        /*
+            计算历史输入特征向量中，各点之间的距离（输入时间差异）
+         */
+        double[] fluctuations = new double[historyVectors.size() * (historyVectors.size()) / 2];
+        int k = 0;
+        for (int i = 0; i < historyVectors.size(); i++) {
+            for (int j = i + 1; j < historyVectors.size(); j++) {
+                //第i个历史向量和第i+1, i+2, ... 之间的距离
+                fluctuations[k] = distance(historyVectors.get(i), historyVectors.get(j));
+                k++;
+            }
+        }
+
+        /*
+            根据输入时间差异向量，取1/3位置处的值作为判定阈值
+         */
+        Arrays.sort(fluctuations);
+        double threshold = fluctuations[fluctuations.length / 3];
+
+        //计算 averageVector 和 currentVector 之间的距离，如果大于阈值，则判定有风险
+        if (distance(averageVector, currentVector) > threshold) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -318,5 +384,26 @@ public class LoginRiskAssessment {
         return 0;
     }
 
+    /**
+     * 计算两点之间的距离
+     *
+     * @param v1 向量1
+     * @param v2 向量2
+     * @return 两点之间的距离
+     */
+    public double distance(double[] v1, double[] v2) {
+        //如果维度不同则抛出异常
+        if (v1.length != v2.length) {
+            throw new RuntimeException("数组长度不一致");
+        }
+
+        //求坐标差值的平方和
+        double squareSum = 0;
+        for (int i = 0; i < v1.length; i++) {
+            squareSum += (v1[i] - v2[i]) * (v1[i] - v2[i]);
+        }
+
+        return sqrt(squareSum);
+    }
 
 }

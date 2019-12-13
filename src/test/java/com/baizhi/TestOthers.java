@@ -11,7 +11,7 @@ import static java.lang.Math.*;
 /**
  * 系统基础测试
  */
-public class TestBase {
+public class TestOthers {
 
     /**
      * 测试Date类
