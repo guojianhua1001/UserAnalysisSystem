@@ -1,5 +1,6 @@
 package com.baizhi;
 
+import com.baizhi.entity.EvaluateData;
 import org.junit.Test;
 
 import java.text.DecimalFormat;
@@ -49,6 +50,14 @@ public class TestOthers {
     public void testMath() {
         System.out.println(sin(toRadians(30)));
         System.out.println(toDegrees(asin(0.5)));
+    }
+
+    @Test
+    public void testLombok() {
+        EvaluateData evaluateData = new EvaluateData();
+        evaluateData.setUserID("1001");
+        System.out.println("evaluateData.getUserID() = " + evaluateData.getUserID());
+        System.out.println(evaluateData);
     }
 
 }

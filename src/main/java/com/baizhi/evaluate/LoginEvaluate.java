@@ -45,7 +45,7 @@ public class LoginEvaluate {
      * @param currentTime  当前时间
      * @param currentPoint 当前坐标
      * @param lastTime     上一次登录时间
-     * @param lastPoint    上一次登录坐标
+     * @param lastPoint    上一次登录坐标(经纬度)
      * @return 有风险返回true, 无风险返回false
      */
     public boolean speedOfDisplacementEval(Long currentTime, double[] currentPoint, Long lastTime, double[] lastPoint) {
@@ -318,7 +318,7 @@ public class LoginEvaluate {
      * 历史数据：仅仅保存用户最近10次登陆特征
      *
      * @param currentVector  当前特征向量
-     * @param historyVectors 历史特征集合
+     * @param historyVectors 历史用户特征集合
      * @return 风险返回true, 无风险返回false
      */
     public boolean inputFeatureEval(double[] currentVector, List<double[]> historyVectors) {
