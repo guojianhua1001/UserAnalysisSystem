@@ -17,7 +17,7 @@ public class HistoryData {
     private Set<String> historyCities;      //历史登录城市集合
     private Long lastTime;                  //上一次登录时间
     private double[] lastPoint;             //上一次登录经纬度
-    private Set<String> historyDevices;    //历史登录设备(最新的3个)
+    private Set<String> historyDevices;    //历史登录设备
     private Map<String, Map<String, Integer>> historicalHabits;  //历史登录习惯
     private Integer currentDayEvalCounts;   //当天的评估次数
     private Set<String> historyPasswords;   //历史密码集合
