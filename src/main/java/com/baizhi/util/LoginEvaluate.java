@@ -1,4 +1,4 @@
-package com.baizhi.evaluate;
+package com.baizhi.util;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -21,7 +21,7 @@ public class LoginEvaluate {
      * @param historyCities 历史登录城市集合
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean offSiteLoginEval(String currentCity, Set<String> historyCities) {
+    public static boolean regionLoginEval(String currentCity, Set<String> historyCities) {
 
         //若历史记录的城市中没有当前登录过的城市，则返回false
         //首先应判断该用户是否是第一次登录(若用户为第一次登录，则历史城市为null，此时也应返回true
@@ -48,7 +48,7 @@ public class LoginEvaluate {
      * @param lastPoint    上一次登录坐标(经纬度)
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean speedOfDisplacementEval(Long currentTime, double[] currentPoint, Long lastTime, double[] lastPoint) {
+    public static boolean speedOfDisplacementEval(Long currentTime, double[] currentPoint, Long lastTime, double[] lastPoint) {
 
         //获取位置坐标并转换为正确的格式
         double ALon = currentPoint[0]; //A位置的经度，单位：°
@@ -88,7 +88,7 @@ public class LoginEvaluate {
      * @param historyDevices 历史登录设备
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean replaceEquipmentEval(String currentDevice, Set<String> historyDevices) {
+    public static boolean replaceEquipmentEval(String currentDevice, List<String> historyDevices) {
 
         //若历史记录的设备中没有当前登录过的设备，则返回false
         //首先应判断该用户是否是第一次登录(若用户为第一次登录，则历史设备为null，此时也应返回true
@@ -116,7 +116,7 @@ public class LoginEvaluate {
      * @param threshold        登录习惯达成(登录次数)阈值
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean loginHabitsEval(Long currentTime, Map<String, Map<String, Integer>> historicalHabits, Integer threshold) {
+    public static boolean loginHabitsEval(Long currentTime, Map<String, Map<String, Integer>> historicalHabits, Integer threshold) {
 
 
         if (historicalHabits == null || historicalHabits.size() == 0) {
@@ -201,7 +201,7 @@ public class LoginEvaluate {
      * @param currentDayEvalCounts 当天的评估次数
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean numberOfLoginEval(Integer threshold, Integer currentDayEvalCounts) {
+    public static boolean numberOfLoginEval(Integer threshold, Integer currentDayEvalCounts) {
 
         //如果当天的评估次数为0(或没有记录），返回false
         if (currentDayEvalCounts == null || currentDayEvalCounts == 0) {
@@ -220,7 +220,7 @@ public class LoginEvaluate {
      * @param similarityThreshold 相似度阈值
      * @return 有风险返回true, 无风险返回false
      */
-    public boolean wrongPasswordEval(String currentPassword, Set<String> historyPasswords, double similarityThreshold) {
+    public static boolean wrongPasswordEval(String currentPassword, Set<String> historyPasswords, double similarityThreshold) {
 
         /*
             获取词袋 --> 确定维度
@@ -303,7 +303,6 @@ public class LoginEvaluate {
             }
             denominator = sqrt(hMode2) * sqrt(cMode2);
             double similarity = molecule / denominator;
-            System.out.println(similarity);
             //根据相似度进行判定，有相似的密码就返回false
             if (similarity >= similarityThreshold)
                 return false;
@@ -321,7 +320,11 @@ public class LoginEvaluate {
      * @param historyVectors 历史用户特征集合
      * @return 风险返回true, 无风险返回false
      */
-    public boolean inputFeatureEval(double[] currentVector, List<double[]> historyVectors) {
+    public static boolean inputFeatureEval(double[] currentVector, List<double[]> historyVectors) {
+
+        if (historyVectors == null) {
+            return false;
+        }
 
         //如果用户的登录次数少于2次，则无法进行判定，直接返回false
         if (historyVectors.size() < 2) {
@@ -376,7 +379,7 @@ public class LoginEvaluate {
      * @param d double类型数值
      * @return 最大值
      */
-    public double max(double... d) {
+    public static double max(double... d) {
         if (d != null) {
             Arrays.sort(d);
             return d[0];
@@ -391,7 +394,7 @@ public class LoginEvaluate {
      * @param v2 向量2
      * @return 两点之间的距离
      */
-    public double distance(double[] v1, double[] v2) {
+    public static double distance(double[] v1, double[] v2) {
         //如果维度不同则抛出异常
         if (v1.length != v2.length) {
             throw new RuntimeException("数组长度不一致");

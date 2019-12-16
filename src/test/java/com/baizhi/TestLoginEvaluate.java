@@ -1,6 +1,6 @@
 package com.baizhi;
 
-import com.baizhi.evaluate.LoginEvaluate;
+import com.baizhi.util.LoginEvaluate;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -22,14 +22,14 @@ public class TestLoginEvaluate {
      * 异地登录评估测试
      */
     @Test
-    public void testOffSiteLoginEval() {
+    public void testRegionLoginEval() {
         HashSet<String> historyCities = new HashSet<>();
         historyCities.add("beijing");
         historyCities.add("zhengzhou");
         historyCities.add("hebi");
         String currentCity = "beijing";
-        System.out.println(loginRiskAssessment.offSiteLoginEval(currentCity, historyCities));
-        System.out.println(loginRiskAssessment.offSiteLoginEval("kaifeng", historyCities));
+        System.out.println(loginRiskAssessment.regionLoginEval(currentCity, historyCities));
+        System.out.println(loginRiskAssessment.regionLoginEval("kaifeng", historyCities));
     }
 
     /**
