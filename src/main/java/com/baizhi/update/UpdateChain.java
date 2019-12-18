@@ -3,6 +3,7 @@ package com.baizhi.update;
 import com.baizhi.entity.HistoryData;
 import com.baizhi.entity.LoginSuccessData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * 更新历史数据处理链
  * 采用模式：责任链模式
  */
-public class UpdateChain {
+public class UpdateChain implements Serializable {
 
     //更新操作处理者集合
     private List<UpdateHandler> updateHandlers = new ArrayList<>();

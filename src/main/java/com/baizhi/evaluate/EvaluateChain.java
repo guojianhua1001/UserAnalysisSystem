@@ -4,13 +4,14 @@ import com.baizhi.entity.EvalReport;
 import com.baizhi.entity.EvaluateData;
 import com.baizhi.entity.HistoryData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 评估处理链
  */
-public class EvaluateChain {
+public class EvaluateChain implements Serializable {
 
     //评估处理程序集合
     private List<EvaluateHandler> evaluateHandlers = new ArrayList<>();

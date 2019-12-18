@@ -1,5 +1,6 @@
 package com.baizhi.util;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -10,7 +11,7 @@ import static java.lang.Math.*;
  * 登录风险评估
  * 辅助业务系统完成盗号或者账号被窃等风险检测。
  */
-public class LoginEvaluate {
+public class LoginEvaluate implements Serializable {
 
     /**
      * 异地登录评估 （☆）
@@ -50,6 +51,10 @@ public class LoginEvaluate {
      */
     public static boolean speedOfDisplacementEval(Long currentTime, double[] currentPoint, Long lastTime, double[] lastPoint) {
 
+        //如果是第一次登录则不做判定
+        if (lastPoint == null || lastTime == null) {
+            return false;
+        }
         //获取位置坐标并转换为正确的格式
         double ALon = currentPoint[0]; //A位置的经度，单位：°
         double ALat = currentPoint[1]; //A位置的纬度，单位：°
@@ -221,6 +226,11 @@ public class LoginEvaluate {
      * @return 有风险返回true, 无风险返回false
      */
     public static boolean wrongPasswordEval(String currentPassword, Set<String> historyPasswords, double similarityThreshold) {
+
+        //如果历史密码为null，则直接返回false
+        if (historyPasswords == null) {
+            return false;
+        }
 
         /*
             获取词袋 --> 确定维度

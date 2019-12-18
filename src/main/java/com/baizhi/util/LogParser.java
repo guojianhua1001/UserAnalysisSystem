@@ -3,6 +3,7 @@ package com.baizhi.util;
 import com.baizhi.entity.EvaluateData;
 import com.baizhi.entity.LoginSuccessData;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
@@ -11,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * 日志解析工具类
  */
-public class LogParser {
+public class LogParser implements Serializable {
 
     /*
         合法日志正则表达式:
@@ -157,6 +158,19 @@ public class LogParser {
                 .setInputFeature(inputFeature)
                 .setUserAgent(userAgent);
         return loginSuccessData;
+    }
+
+
+    /**
+     * 获取日志中的key值(应用名：用户ID)
+     *
+     * @param input 输入日志
+     * @return key值
+     */
+    public static String getKey(String input) {
+        Matcher matcher = LEGAL_PATTERN.matcher(input);
+        matcher.matches();
+        return matcher.group(2) + ":" + matcher.group(4);
     }
 
 
