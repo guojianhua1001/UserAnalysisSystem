@@ -1,4 +1,4 @@
-package com.baizhi;
+package com.baizhi.test;
 
 import com.baizhi.util.LoginEvaluate;
 import org.junit.Test;

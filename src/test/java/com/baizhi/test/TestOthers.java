@@ -1,4 +1,4 @@
-package com.baizhi;
+package com.baizhi.test;
 
 import com.baizhi.entity.EvaluateData;
 import org.junit.Test;
@@ -58,6 +58,11 @@ public class TestOthers {
         evaluateData.setUserID("1001");
         System.out.println("evaluateData.getUserID() = " + evaluateData.getUserID());
         System.out.println(evaluateData);
+    }
+
+    @Test
+    public void testLength() {
+        System.out.println("INFO 2019-12-28 13:53:34 APP1 EVALUATE [USER1005] c4d1a56a9c734966891c2f481ccd7a94 \"USER1006\" beijing \"40.1,116.5\" [4623.3,4432.3,3780.3] \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763\"".length());
     }
 
 }

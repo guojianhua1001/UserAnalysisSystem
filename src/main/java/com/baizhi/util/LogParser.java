@@ -18,17 +18,17 @@ public class LogParser implements Serializable {
         合法日志正则表达式:
         ^INFO\s(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s([0-9a-zA-Z]+)\s(SUCCESS|EVALUATE)\s\[([0-9a-zA-Z]+)\]\s([0-9a-z]{32})\s\"([0-9a-zA-Z\.]+)\"\s([0-9a-zA-Z]+)\s\"(\d{1,3}.\d+,\d{1,3}.\d+)\"\s\[(\d+.\d+,\d+.\d+,\d+.\d+)\]\s\"(.*?)\"$
      */
-    final static Pattern LEGAL_PATTERN = Pattern.compile("^INFO\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s([0-9a-zA-Z]+)\\s(SUCCESS|EVALUATE)\\s\\[([0-9a-zA-Z]+)\\]\\s([0-9a-z]{32})\\s\\\"([0-9a-zA-Z\\.]+)\\\"\\s([0-9a-zA-Z]+)\\s\\\"(\\d{1,3}.\\d+,\\d{1,3}.\\d+)\\\"\\s\\[(\\d+.\\d+,\\d+.\\d+,\\d+.\\d+)\\]\\s\\\"(.*?)\\\"$");
+    final static Pattern LEGAL_PATTERN = Pattern.compile("^INFO\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s([0-9a-zA-Z]+)\\s(SUCCESS|EVALUATE)\\s\\[([0-9a-zA-Z]+)\\]\\s([0-9a-z]{32})\\s\\\"([0-9a-zA-Z\\.]+)\\\"\\s([0-9a-zA-Z]+)\\s\\\"(\\d{1,3}.\\d+,\\d{1,3}.\\d+)\\\"\\s\\[(\\d+.\\d+,\\d+.\\d+,\\d+.\\d+)\\]\\s\\\"(.*?)\\\"\\s$");
     /*
         登录评估日志正则表达式:
         ^INFO\s(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s([0-9a-zA-Z]+)\sEVALUATE\s\[([0-9a-zA-Z]+)\]\s([0-9a-z]{32})\s\"([0-9a-zA-Z\.]+)\"\s([0-9a-zA-Z]+)\s\"(\d{1,3}.\d+,\d{1,3}.\d+)\"\s\[(\d+.\d+,\d+.\d+,\d+.\d+)\]\s\"(.*?)\"$
     */
-    final static Pattern EVAL_PATTERN = Pattern.compile("^INFO\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s([0-9a-zA-Z]+)\\sEVALUATE\\s\\[([0-9a-zA-Z]+)\\]\\s([0-9a-z]{32})\\s\\\"([0-9a-zA-Z\\.]+)\\\"\\s([0-9a-zA-Z]+)\\s\\\"(\\d{1,3}.\\d+,\\d{1,3}.\\d+)\\\"\\s\\[(\\d+.\\d+,\\d+.\\d+,\\d+.\\d+)\\]\\s\\\"(.*?)\\\"$");
+    final static Pattern EVAL_PATTERN = Pattern.compile("^INFO\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s([0-9a-zA-Z]+)\\sEVALUATE\\s\\[([0-9a-zA-Z]+)\\]\\s([0-9a-z]{32})\\s\\\"([0-9a-zA-Z\\.]+)\\\"\\s([0-9a-zA-Z]+)\\s\\\"(\\d{1,3}.\\d+,\\d{1,3}.\\d+)\\\"\\s\\[(\\d+.\\d+,\\d+.\\d+,\\d+.\\d+)\\]\\s\\\"(.*?)\\\"\\s$");
     /*
         登陆成功日志正则表达式:
         ^INFO\s(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s([0-9a-zA-Z]+)\sSUCCESS\s\[([0-9a-zA-Z]+)\]\s([0-9a-z]{32})\s\"([0-9a-zA-Z\.]+)\"\s([0-9a-zA-Z]+)\s\"(\d{1,3}.\d+,\d{1,3}.\d+)\"\s\[(\d+.\d+,\d+.\d+,\d+.\d+)\]\s\"(.*?)\"$
      */
-    final static Pattern SUCCESS_PATTERN = Pattern.compile("^INFO\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s([0-9a-zA-Z]+)\\sSUCCESS\\s\\[([0-9a-zA-Z]+)\\]\\s([0-9a-z]{32})\\s\\\"([0-9a-zA-Z\\.]+)\\\"\\s([0-9a-zA-Z]+)\\s\\\"(\\d{1,3}.\\d+,\\d{1,3}.\\d+)\\\"\\s\\[(\\d+.\\d+,\\d+.\\d+,\\d+.\\d+)\\]\\s\\\"(.*?)\\\"$");
+    final static Pattern SUCCESS_PATTERN = Pattern.compile("^INFO\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s([0-9a-zA-Z]+)\\sSUCCESS\\s\\[([0-9a-zA-Z]+)\\]\\s([0-9a-z]{32})\\s\\\"([0-9a-zA-Z\\.]+)\\\"\\s([0-9a-zA-Z]+)\\s\\\"(\\d{1,3}.\\d+,\\d{1,3}.\\d+)\\\"\\s\\[(\\d+.\\d+,\\d+.\\d+,\\d+.\\d+)\\]\\s\\\"(.*?)\\\"\\s$");
 
     /**
      * 判断当前输入字符串是否合法

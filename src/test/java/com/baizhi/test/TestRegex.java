@@ -1,4 +1,4 @@
-package com.baizhi;
+package com.baizhi.test;
 
 import org.junit.Test;
 
